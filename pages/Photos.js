@@ -6,7 +6,7 @@ import {Context} from '../Context';
 function Photos() {
 	const { allPhotos } = useContext(Context);
 	const result = allPhotos.map((photo, index) => (
-		<Image key={photo.id} img={photo} className={getClass(index)} />
+		<Image key={photo.id} photo={photo} className={getClass(index)} />
 	))
 
 	return (
