@@ -7,17 +7,44 @@ const URL = "https://raw.githubusercontent.com/bobziroll/scrimba-react-bootcamp-
 function ContextProvider({ children }) {
     const [allPhotos, setAllPhotos] = useState([]);
     const [cartItems, setCartItems] = useState([]);
-    const [isOrder, setIsOrder] = useState(false);
 
-    async function getPhotos() {
-        const res = await fetch(URL);
-        const data = await res.json();
-        setAllPhotos(data);
+    async function getPhotos(url) {
+        //is there something with the string 'allPhotos' inside localStorage
+        const lsAllPhotos = JSON.parse(localStorage.getItem('allPhotos'));
+        if (lsAllPhotos) {
+            console.log({ lsAllPhotos });
+            setAllPhotos(lsAllPhotos);
+        } else {
+            console.log("Nothing in the local");
+            const res = await fetch(url);
+            const data = await res.json();
+            setAllPhotos(data);
+        }
     }
 
     useEffect(() => {
-        getPhotos();
+        getPhotos(URL);
+        initCartItems();
     }, [])
+
+    function initCartItems() {
+        const lsCartItems = JSON.parse(localStorage.getItem('cartItems'))
+        if (lsCartItems) {
+            setCartItems(lsCartItems);
+        }
+    }
+
+    useEffect(() => {
+        if (allPhotos.length > 0) {
+            localStorage.setItem('allPhotos', JSON.stringify(allPhotos));
+        }
+    }, [allPhotos])
+
+    useEffect(() => {
+        localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    }, [cartItems])
+
+
 
     function toggleFavorite(id) {
         const newPhotosArray = allPhotos.map(photo => {
@@ -45,14 +72,12 @@ function ContextProvider({ children }) {
         // setCartItems(remove);
     }
 
-    function ordering() {
-        setTimeout(() => {
-            setIsOrder(true);
-        }, 3000)
+    function emptyCart() {
+        setCartItems([]);
     }
 
     return (
-        <Context.Provider value={{ allPhotos, toggleFavorite, cartItems, addToCart, removeFromCart, ordering, isOrder }}>
+        <Context.Provider value={{ allPhotos, toggleFavorite, cartItems, addToCart, removeFromCart, emptyCart }}>
             {children}
         </Context.Provider>
     )
